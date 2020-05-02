@@ -117,3 +117,13 @@ platform_do_upgrade() {
 		;;
 	esac
 }
+
+platform_pre_upgrade() {
+	local board=$(board_name)
+
+	case "$board" in
+	mikrotik,sxtsq-5ac)
+		[ -z "$(rootfs_type)" ] && mtd erase firmware
+		;;
+	esac
+}
