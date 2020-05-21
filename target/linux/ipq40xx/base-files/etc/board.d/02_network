@@ -24,7 +24,6 @@ ipq40xx_setup_interfaces()
 	engenius,eap1300|\
 	engenius,emd1|\
 	meraki,mr33|\
-	mikrotik,sxtsq-5ac|\
 	netgear,ex6100v2|\
 	netgear,ex6150v2|\
 	zyxel,wre6606)
@@ -34,6 +33,9 @@ ipq40xx_setup_interfaces()
 		ucidef_set_interfaces_lan_wan "eth0" "eth1"
 		ucidef_add_switch "switch0" \
 			"0u@eth0" "2:lan:1" "3:lan:2" "4:lan:3" "0u@eth1" "5:wan"
+		;;
+	mikrotik,sxtsq-5ac)
+		ucidef_set_interfaces_lan_wan "eth0"
 		;;
 	asus,map-ac2200|\
 	cilab,meshpoint-one|\
