@@ -34,13 +34,6 @@
 		stdout-path = "serial0:115200n8";
 	};
 
-	aliases {
-		led-boot = &user;
-		led-failsafe = &user;
-		led-running = &user;
-		led-upgrade = &user;
-	};
-
 	soc {
 		rng@22000 {
 			status = "okay";
