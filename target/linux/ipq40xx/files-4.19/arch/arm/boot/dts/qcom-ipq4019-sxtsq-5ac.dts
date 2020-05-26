@@ -25,16 +25,16 @@
 	model = "Mikrotik Wireless SXTSQ-5ac";
 	compatible = "mikrotik,sxtsq-5ac";
 
-	memory {
-		device_type = "memory";
-		reg = <0x80000000 0x10000000>;
+	aliases {
+		led-boot = &led_status;
+		led-failsafe = &led_status;
+		led-running = &led_status;
+		led-upgrade = &led_upgrade;
 	};
 
-	aliases {
-		led-boot = &user;
-		led-failsafe = &user;
-		led-running = &user;
-		led-upgrade = &user;
+	memory {
+		device_type = "memory";
+		reg = <0x80000000 0x8fffffff>;
 	};
 
 	soc {
@@ -46,15 +46,17 @@
 			status = "okay";
 		};
 
-		counter@4a1000 {
-			compatible = "qcom,qca-gcnt";
-			reg = <0x4a1000 0x4>;
-		};
-
 		tcsr@1949000 {
 			compatible = "qcom,tcsr";
 			reg = <0x1949000 0x100>;
 			qcom,wifi_glb_cfg = <TCSR_WIFI_GLB_CFG>;
+		};
+
+		tcsr@194b000 {
+			status = "okay";
+			compatible = "qcom,tcsr";
+			reg = <0x194b000 0x100>;
+			qcom,usb-hsphy-mode-select = <TCSR_USB_HSPHY_HOST_MODE>;
 		};
 
 		ess_tcsr@1953000 {
@@ -63,15 +65,13 @@
 			qcom,ess-interface-select = <TCSR_ESS_PSGMII_RGMII5>;
 		};
 
-		/*
 		tcsr@1957000 {
 			compatible = "qcom,tcsr";
 			reg = <0x1957000 0x100>;
 			qcom,wifi_noc_memtype_m0_m2 = <TCSR_WIFI_NOC_MEMTYPE_M0_M2>;
 		};
-		*/
 
-		crypto@8e3a000 {
+		crypto@e820000 {
 			status = "okay";
 		};
 
@@ -83,51 +83,8 @@
 			status = "okay";
 		};
 
-		/*
-		edma@c080000 {
-			qcom,single-phy;
-			qcom,num_gmac = <1>;
-			phy-mode = "rgmii-id";
+		ess-psgmii@98000 {
 			status = "okay";
-		};
-		*/
-	};
-
-	/*
-	keys {
-		compatible = "gpio-keys";
-
-		reset {
-			label = "reset";
-			gpios = <&tlmm 63 GPIO_ACTIVE_LOW>;
-			linux,code = <KEY_RESTART>;
-		};
-	};
-	*/
-};
-
-/*
-&tlmm {
-	serial_pins: serial_pinmux {
-		mux {
-			pins = "gpio60", "gpio61";
-			function = "blsp_uart0";
-			bias-disable;
-		};
-	};
-
-	spi_0_pins: spi-0-pinmux {
-		pinmux {
-			function = "blsp_spi0";
-			pins = "gpio13", "gpio14", "gpio15";
-			bias-disable;
-		};
-
-		pinmux_cs {
-			function = "gpio";
-			pins = "gpio12";
-			bias-disable;
-			output-high;
 		};
 	};
 };
@@ -139,4 +96,56 @@
 
 &cryptobam {
 	status = "okay";
+};
+
+&wifi0 {
+	status = "okay";
+};
+
+/* spi block device */
+&blsp1_spi1 {
+	pinctrl-0 = <&spi_0_pins>;
+	pinctrl-names = "default";
+	cs-gpios = <&tlmm 12 GPIO_ACTIVE_HIGH>;
+	status = "okay";
+
+	m25p80@0 {
+		reg = <0>;
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <24000000>;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition0@0 {
+				label = "RouterBoot";
+				reg = <0x80000 0xe000>;
+				read-only;
+			};
+
+			partition1@8e000 {
+				label = "hard_config";
+				reg = <0x8e000 0x01000>;
+			};
+
+			partition2@90000 {
+				label = "dts_config";
+				reg = <0x90000 0x10000>;
+				read-only;
+			};
+
+			partition3@bd000 {
+				label = "soft_config";
+				reg = <0xbd000 0x01000>;
+			};
+
+			partition4@1000000 {
+				compatible = "mikrotik,minor";
+				label = "firmware";
+				reg = <0x100000 0xf00000>;
+			};
+		};
+	};
 };
