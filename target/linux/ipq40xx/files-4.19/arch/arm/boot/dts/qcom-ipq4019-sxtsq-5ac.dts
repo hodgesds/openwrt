@@ -25,13 +25,6 @@
 	model = "Mikrotik Wireless SXTSQ-5ac";
 	compatible = "mikrotik,sxtsq-5ac";
 
-	aliases {
-		led-boot = &led_status;
-		led-failsafe = &led_status;
-		led-running = &led_status;
-		led-upgrade = &led_upgrade;
-	};
-
 	memory {
 		device_type = "memory";
 		reg = <0x80000000 0x8fffffff>;
@@ -103,6 +96,32 @@
 };
 
 /* spi block device */
+
+&tlmm {
+	serial_pins: serial_pinmux {
+		mux {
+			pins = "gpio60", "gpio61";
+			function = "blsp_uart0";
+			bias-disable;
+		};
+	};
+
+	spi_0_pins: spi-0-pinmux {
+		pinmux {
+			function = "blsp_spi0";
+			pins = "gpio13", "gpio14", "gpio15";
+			bias-disable;
+		};
+
+		pinmux_cs {
+			function = "gpio";
+			pins = "gpio12";
+			bias-disable;
+			output-high;
+		};
+	};
+};
+
 &blsp1_spi1 {
 	pinctrl-0 = <&spi_0_pins>;
 	pinctrl-names = "default";
