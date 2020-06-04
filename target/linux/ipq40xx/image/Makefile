@@ -31,8 +31,30 @@ define Build/ipq-aux-loader-common
 	rm -rf $@.src
 endef
 
+define Build/aux-loader-common
+	rm -rf $@.src
+	$(MAKE) -C aux-loader \
+		PKG_BUILD_DIR="$@.src" \
+		TARGET_DIR="$(dir $@)" LOADER_NAME="$(notdir $@)" \
+		BOARD="$(BOARDNAME)" PLATFORM="$(PLATFORM)" \
+		BLOCKSIZE="$(BLOCKSIZE)" PAGESIZE="$(PAGESIZE)" \
+		$(1) LOADER_TYPE=$(2) compile loader.$(2)
+	mv "$@.$(2)" "$@"
+	rm -rf $@.src
+endef
+
+define Build/aux-loader-kernel
+	$(call Build/aux-loader-common,LOADER_DATA="$@",$(1))
+endef
+
 define Build/ipq-aux-loader-kernel
 	$(call Build/ipq-aux-loader-common,LOADER_DATA="$@",$(1))
+endef
+
+define Device/LegacyImage
+	KERNEL_SUFFIX := -uImage
+	KERNEL = kernel-bin | append-dtb | uImage none
+	KERNEL_NAME := zImage
 endef
 
 define Device/FitImage
@@ -524,8 +546,20 @@ define Device/MikrotikNOR
 	DEVICE_PACKAGES := rbcfg
 endef
 
+define Device/Mikrotik
+	$(call Device/FitImageLzma)
+	BLOCKSIZE := 256k
+	PAGESIZE := 4096
+	KERNEL_INITRAMFS_SUFFIX := -fit-uImage.elf
+	PLATFORM := mikrotik-ipq4xxx
+	KERNEL_INITRAMFS = $$(KERNEL) | aux-loader-kernel elf
+	IMAGES := sysupgrade.bin
+	IMAGE/sysupgrade.bin/squashfs := append-kernel | aux-loader-kernel ubi | \
+		sysupgrade-tar kernel=$$$$@ | append-metadata
+endef
+
 define Device/mikrotik_sxtsq-5ac
-	$(call Device/MikrotikNOR)
+	$(call Device/Mikrotik)
 	DEVICE_MODEL := Wireless Wireless SXTSq-5ac 
 	DEVICE_DTS := qcom-ipq4019-sxtsq-5ac
 	DEVICE_PACKAGES += -kmod-ath10k-ct -ath10k-firmware-qca4019-ct 
