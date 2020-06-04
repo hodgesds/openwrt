@@ -80,6 +80,55 @@
 			status = "okay";
 		};
 	};
+
+	leds {
+		compatible = "gpio-leds";
+
+		led1 {
+			label = "sxtsq-5ac:green:power";
+			gpios = <&tlmm 0 GPIO_ACTIVE_HIGH>;
+		};
+
+		led2 {
+			label = "sxtsq-5ac:green:led2";
+			gpios = <&tlmm 1 GPIO_ACTIVE_LOW>;
+		};
+
+		led3 {
+			label = "sxtsq-5ac:green:led3";
+			gpios = <&tlmm 2 GPIO_ACTIVE_LOW>;
+		};
+
+		led4 {
+			label = "sxtsq-5ac:green:user-led";
+			gpios = <&tlmm 3 GPIO_ACTIVE_LOW>;
+		};
+
+		led5 {
+			label = "sxtsq-5ac:green:led4";
+			gpios = <&tlmm 4 GPIO_ACTIVE_LOW>;
+		};
+
+		led6 {
+			label = "sxtsq-5ac:green:led5";
+			gpios = <&tlmm 5 GPIO_ACTIVE_LOW>;
+		};
+
+		led7 {
+			label = "sxtsq-5ac:green:led1";
+			gpios = <&tlmm 58 GPIO_ACTIVE_LOW>;
+		};
+	};
+
+	keys {
+		compatible = "gpio-keys";
+
+		reset {
+			label = "reset";
+			gpios = <&tlmm 63 GPIO_ACTIVE_HIGH>;
+			linux,code = <KEY_RESTART>;
+		};
+	};
 };
 
 &blsp_dma {
@@ -93,10 +142,10 @@
 
 &wifi0 {
 	status = "okay";
+	qcom,ath10k-calibration-variant = "sxtsq-5ac";
 };
 
 /* spi block device */
-
 &tlmm {
 	serial_pins: serial_pinmux {
 		mux {
